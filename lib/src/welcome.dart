@@ -63,6 +63,7 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
+  /* - Fingerabruck, zur Zeit außer Nutzung, bei Nutzung auch
   Widget _label() {
     return Container(
         margin: EdgeInsets.only(top: 40, bottom: 20),
@@ -89,7 +90,7 @@ class _WelcomePageState extends State<WelcomePage> {
             ),
           ],
         ));
-  }
+  } */
 
   Widget _title() {
     return RichText(
@@ -141,7 +142,7 @@ class _WelcomePageState extends State<WelcomePage> {
             children: <Widget>[
               _title(),
               SizedBox(
-                height: 80,
+                height: 240,
               ),
               _submitButton(),
               SizedBox(
@@ -151,7 +152,7 @@ class _WelcomePageState extends State<WelcomePage> {
               SizedBox(
                 height: 20,
               ),
-              _label()
+              //_label()
             ],
           ),
         ),

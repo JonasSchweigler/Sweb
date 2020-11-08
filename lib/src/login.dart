@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:app_shareweb/src/signup.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app_shareweb/views/home.dart';
+
 
 import 'Widget/bezierContainer.dart';
 
@@ -14,6 +18,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String password;
+  String email;
+
+  void _setValueEmail(value){
+      email = value;
+  }
+
+  void _setValuePassword(value){
+    password = value;
+  }
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -35,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryFieldEmail(String title) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -49,7 +64,34 @@ class _LoginPageState extends State<LoginPage> {
             height: 10,
           ),
           TextField(
-              obscureText: isPassword,
+              obscureText: false,
+              onChanged: _setValueEmail,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  fillColor: Color(0xfff3f3f4),
+                  filled: true))
+        ],
+      ),
+    );
+  }
+
+  Widget _entryFieldPassword(String title) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+              obscureText: true,
+              onChanged: _setValuePassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),
@@ -60,7 +102,27 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _submitButton() {
-    return Container(
+    return InkWell(
+      onTap: () async{
+        try {
+          UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: email,
+              password: password
+          );
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'user-not-found') {
+            print('Für diese Email-Adresse existiert kein Nutzer.');
+          } else if (e.code == 'wrong-password') {
+            print('Falsches Passwort.');
+          }
+        }
+      },
+        child: Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 15),
       alignment: Alignment.center,
@@ -81,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
         'Login',
         style: TextStyle(fontSize: 20, color: Colors.white),
       ),
-    );
+    ));
   }
 
   Widget _divider() {
@@ -168,6 +230,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _createAccountLabel() {
     return InkWell(
       onTap: () {
+        Navigator.pop(context);
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => SignUpPage()));
       },
@@ -225,8 +288,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email id"),
-        _entryField("Password", isPassword: true),
+        _entryFieldEmail("Email id"),
+        _entryFieldPassword("Password"),
       ],
     );
   }
