@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_shareweb/src/Widget/bezierContainer.dart';
 import 'package:app_shareweb/src/login.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:app_shareweb/views/home.dart';
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({Key key, this.title}) : super(key: key);
@@ -13,6 +15,10 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  String name;
+  String email;
+  String password;
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -34,7 +40,7 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryFieldName(String title) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -48,7 +54,58 @@ class _SignUpPageState extends State<SignUpPage> {
             height: 10,
           ),
           TextField(
-              obscureText: isPassword,
+              obscureText: false,
+              onChanged: (value) => name = value,
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  fillColor: Color(0xfff3f3f4),
+                  filled: true))
+        ],
+      ),
+    );
+  }
+
+  Widget _entryFieldEmail(String title) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+              obscureText: false,
+              onChanged: (value) => email = value,
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  fillColor: Color(0xfff3f3f4),
+                  filled: true))
+        ],
+      ),
+    );
+  }
+
+  Widget _entryFieldPassword(String title) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+              obscureText: true,
+              onChanged: (value) => password = value,
               decoration: InputDecoration(
                   border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),
@@ -59,7 +116,28 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Widget _submitButton() {
-    return Container(
+    return InkWell(
+        onTap: () async{
+        try {
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    email: email,
+    password: password
+    );
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('Das gewählte Passwort ist zu schwach!');
+      } else if (e.code == 'email-already-in-use') {
+        print('Es besteht bereits ein Account mit dieser Email-Adresse.');
+      }
+    } catch (e) {
+    print(e);
+    }},
+        child: Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 15),
       alignment: Alignment.center,
@@ -80,7 +158,7 @@ class _SignUpPageState extends State<SignUpPage> {
         'Register Now',
         style: TextStyle(fontSize: 20, color: Colors.white),
       ),
-    );
+    ));
   }
 
   Widget _loginAccountLabel() {
@@ -144,9 +222,9 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Username"),
-        _entryField("Email id"),
-        _entryField("Password", isPassword: true),
+        _entryFieldName("Username"),
+        _entryFieldEmail("Email id"),
+        _entryFieldPassword("Password"),
       ],
     );
   }
