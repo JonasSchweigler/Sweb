@@ -1,6 +1,9 @@
+import 'package:app_shareweb/src/welcome.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_shareweb/views/create_umfrage.dart';
 import 'package:app_shareweb/screen2.dart';
+import 'package:app_shareweb/src/welcome.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -8,6 +11,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String kontoStand = "1000";
   String umFragen = "200";
   String yt = "600";
@@ -15,6 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: PreferredSize(
           child: AppBar(
             centerTitle: true,
@@ -37,12 +42,21 @@ class _ProfilePageState extends State<ProfilePage> {
             actions: [
               IconButton(
                 icon: Icon(Icons.settings),
-                onPressed: () {},
+                onPressed: () {_scaffoldKey.currentState.openEndDrawer();},
               )
             ],
           ),
           preferredSize: Size.fromHeight(40)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      endDrawer: Drawer(child: ListView(children: [
+        FlatButton(child: Text('Abmelden'), onPressed: () async{
+          await FirebaseAuth.instance.signOut();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => WelcomePage()),
+          );
+        })
+      ],)),
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         child: Column(
